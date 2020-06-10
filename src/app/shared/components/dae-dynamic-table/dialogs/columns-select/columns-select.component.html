@@ -2,7 +2,7 @@
   <h2 mat-dialog-title>Colonnes à afficher</h2>
   <mat-dialog-content>
     <mat-list formArrayName="columns">
-      <mat-list-item *ngFor="let column of form.controls.columns.controls; let i = index">
+      <mat-list-item *ngFor="let column of columnsFormControls; let i = index">
         <mat-checkbox [formControlName]="i" class="example-margin">{{filteredColumns[i].name}}</mat-checkbox>
       </mat-list-item>
     </mat-list>

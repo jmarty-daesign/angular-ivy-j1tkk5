@@ -29,6 +29,13 @@ export class ColumnsSelectComponent implements OnInit {
   }
 
   /**
+   * Getter for the form controls array
+   */
+  get columnsFormControls() { 
+    return (<FormArray>this.form.get('columns')).controls; 
+  }
+
+  /**
    * Remove select and options to only display data columns.
    */
   private _filterColumns() {
