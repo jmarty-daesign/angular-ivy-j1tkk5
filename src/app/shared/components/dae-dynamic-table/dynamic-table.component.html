@@ -45,6 +45,6 @@
   <mat-header-row *matHeaderRowDef="displayedColumns;"></mat-header-row>
   <mat-row *matRowDef="let row; columns: displayedColumns;" (click)="onRowClick(row)"></mat-row>
 </mat-table>
-<mat-paginator [hidden]="!isUsingInternalPaginator()" [pageSize]="pageSize" [pageSizeOptions]="pageSizeOptions">
+<mat-paginator [showFirstLastButtons]="true" [hidden]="!isUsingInternalPaginator()" [pageSize]="pageSize" [pageSizeOptions]="pageSizeOptions">
 </mat-paginator>
 
