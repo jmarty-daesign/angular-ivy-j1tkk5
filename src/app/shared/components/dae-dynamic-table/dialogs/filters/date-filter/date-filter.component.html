@@ -1,0 +1,32 @@
+<form (ngSubmit)="apply()">
+    <h2 mat-dialog-title>Filtrer par {{ displayName }}</h2>
+  
+    <mat-dialog-content>
+    
+      <mat-form-field>
+        <input matInput
+               [matDatepicker]="fromDate"
+               name="fromDate"
+               placeholder="De"
+               [(ngModel)]="model.fromDate">
+        <mat-datepicker-toggle matSuffix [for]="fromDate"></mat-datepicker-toggle>
+        <mat-datepicker #fromDate></mat-datepicker>
+      </mat-form-field>
+      
+      <mat-form-field>
+        <input matInput
+               [matDatepicker]="toDate"
+               name="toDate"
+               placeholder="A"
+               [(ngModel)]="model.toDate">
+        <mat-datepicker-toggle matSuffix [for]="toDate"></mat-datepicker-toggle>
+        <mat-datepicker #toDate></mat-datepicker>
+      </mat-form-field>
+   
+    </mat-dialog-content>
+  
+    <mat-dialog-actions>
+      <button mat-button mat-dialog-close>Supprimer</button>
+      <button mat-button type="submit">Appliquer</button>
+    </mat-dialog-actions>
+  </form>

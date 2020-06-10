@@ -1,0 +1,26 @@
+<form (ngSubmit)="apply()">
+  <h2 mat-dialog-title>Filtrer par {{ displayName }}</h2>
+
+  <mat-dialog-content>
+  
+    <mat-form-field>
+      <input matInput
+             name="minValue"
+             placeholder="Valeur minimum"
+             [(ngModel)]="model.minValue">
+    </mat-form-field>
+    
+    <mat-form-field>
+      <input matInput
+             name="maxValue"
+             placeholder="Valeur maximum"
+             [(ngModel)]="model.maxValue">
+    </mat-form-field>
+ 
+  </mat-dialog-content>
+
+  <mat-dialog-actions>
+    <button mat-button mat-dialog-close>Supprimer</button>
+    <button mat-button type="submit">Appliquer</button>
+  </mat-dialog-actions>
+</form>

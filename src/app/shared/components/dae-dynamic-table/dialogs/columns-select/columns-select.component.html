@@ -1,0 +1,15 @@
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <h2 mat-dialog-title>Colonnes à afficher</h2>
+  <mat-dialog-content>
+    <mat-list formArrayName="columns">
+      <mat-list-item *ngFor="let column of form.controls.columns.controls; let i = index">
+        <mat-checkbox [formControlName]="i" class="example-margin">{{filteredColumns[i].name}}</mat-checkbox>
+      </mat-list-item>
+    </mat-list>
+  </mat-dialog-content>
+  <mat-dialog-actions>
+    <button mat-button mat-dialog-close>Fermer</button>
+    <button [disabled]="!form.valid" mat-button type="submit">Appliquer</button>
+  </mat-dialog-actions>
+  <div class="mat-error" *ngIf="!form.valid">Sélectionner au moins une valeur</div>
+</form>

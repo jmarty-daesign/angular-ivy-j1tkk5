@@ -1,0 +1,7 @@
+div#mat-confirm-dialog
+    mat-icon#close-icon('(click)'="closeDialog()") close
+    mat-dialog-content
+        .dialog-content(i18n) {{data.message}}
+    mat-dialog-actions
+        button#no-button(mat-button, [mat-dialog-close]="false", i18n) Non
+        button#yes-button(mat-button, [mat-dialog-close]="true", i18n) Oui

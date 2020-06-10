@@ -1,0 +1,17 @@
+.header {
+    height: 75px;
+
+    .title {
+        color: rgba(0,0,0,0.87);
+        font-size: 24px;
+    }
+    .padding {
+        padding: 0 20px;
+    }
+    .right {
+        margin-right: 10px;
+    }
+    mat-divider {
+        height: 25px;
+    }
+}

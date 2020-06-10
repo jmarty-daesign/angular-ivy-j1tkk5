@@ -1,0 +1,35 @@
+<div [formGroup]="form">
+    
+    <div [ngSwitch]="question.controlType">
+  
+      <mat-form-field *ngSwitchCase="'textbox'">
+        <input matInput [placeholder]="question.label" 
+          [id]="question.key" [type]="question.type" [formControlName]="question.key">
+      </mat-form-field>
+
+      <mat-form-field *ngSwitchCase="'datepicker'">
+          <input matInput [matDatepicker]="picker" [formControlName]="question.key" [placeholder]="question.label">
+          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
+  
+      <mat-form-field *ngSwitchCase="'dropdown'">
+        <mat-select [formControlName]="question.key" [placeholder]="question.label">
+          <mat-option *ngFor="let opt of question.options" [value]="opt.key">
+            {{opt.value}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+  
+      <label *ngSwitchCase="'radio'" class="example-radio-label">{{question.label}}</label>
+      <mat-radio-group *ngSwitchCase="'radio'" [formControlName]="question.key" class="example-radio-group">
+        <mat-radio-button class="example-radio-button" *ngFor="let opt of question.options" [value]="opt.key">
+          {{opt.value}}
+        </mat-radio-button>
+      </mat-radio-group>
+  
+    </div> 
+  
+    <!-- <div class="errorMessage" *ngIf="!isValid">{{question.label}} is required</div> -->
+  </div>
+  <br>

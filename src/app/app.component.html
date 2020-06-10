@@ -1,4 +1,19 @@
-<hello name="{{ name }}"></hello>
-<p>
-  Start editing to see some magic happen :)
-</p>
+<div class="mat-elevation-z2 dae-container">
+  <dae-dynamic-table #dataTable 
+    [title]="'Personnes'"
+    [columns$]="columns$"
+    [dataSource$]="people$"
+    [selectionEnabled]="true"
+    [modifyEnabled]="true"
+    [deleteEnabled]="true"
+    (addElement)="onAdd($event)"
+    (modifyElement)="onModify($event)"
+    (deleteElement)="onDelete($event)">
+      <button #actionMenuButton matRipple mat-button [matMenuTriggerFor]="selectionActionsMenu" 
+        [disabled]="dataTable.selection.selected.length == 0">Actions sélection</button>
+      <mat-menu #selectionActionsMenu="matMenu">
+        <button mat-menu-item (click)="onAction1Clicked($event)">Action 1</button>
+        <button mat-menu-item (click)="onAction2Clicked($event)">Action 2</button>
+      </mat-menu>
+  </dae-dynamic-table>
+</div>

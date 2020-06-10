@@ -1,0 +1,22 @@
+#mat-confirm-dialog{
+    position:relative;
+    #close-icon{
+        position:absolute;
+        right: -20px;
+        top: -20px;
+        cursor:pointer;
+    }
+    .dialog-content{
+        min-height:60px;
+        padding:10px 30px;
+    }
+    .mat-dialog-actions{
+        display:block;
+        button{
+            background-color: #CD292F;
+            color: white;
+            float:right;
+            margin:0 0 0 5px;
+        }
+    }
+}
