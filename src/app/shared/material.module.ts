@@ -106,6 +106,6 @@ import { MatMomentDateModule } from '@angular/material-moment-adapter';
     MatTooltipModule,
     MatNativeDateModule,
     MatMomentDateModule
-  ],
+  ]
 })
 export class MaterialModule {}
