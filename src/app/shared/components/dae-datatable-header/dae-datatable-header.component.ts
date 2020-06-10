@@ -3,7 +3,7 @@ import { Component, Input, EventEmitter, Output } from "@angular/core"
 @Component({
     selector: "dae-datatable-header",
     styleUrls: ["./dae-datatable-header.component.scss"],
-    templateUrl: "./dae-datatable-header.component.pug",
+    templateUrl: "./dae-datatable-header.component.html",
 })
 export class DaeDatatableHeaderComponent {
     //#region PROPERTIES

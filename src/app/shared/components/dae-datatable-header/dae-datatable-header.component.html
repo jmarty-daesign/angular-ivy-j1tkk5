@@ -1,0 +1,17 @@
+<div class="header" fxLayout="row" fxLayoutAlign="start center">
+    <div class="title padding" i18n="">{{ title | translate }}</div>
+    <ng-container *ngIf="displayActionButton">
+        <mat-divider [vertical]="true"></mat-divider><button class="padding" mat-button="mat-button" (click)="triggerActionCallback()"><i class="material-icons">{{ actionButtonIcon }}</i></button></ng-container>
+    <ng-container *ngIf="displaySearchField">
+        <mat-divider [vertical]="true"></mat-divider>
+        <div class="padding" fxLayout="row" fxLayoutAlign="start center"><i class="material-icons right">search</i>
+            <mat-form-field><input matInput="matInput" i18n="" translate="translate" [(ngModel)]="searchModel" (keyup)="triggerSearchCallback()" [placeholder]="searchInputPlaceholder | translate" /></mat-form-field>
+        </div>
+    </ng-container>
+    <ng-container *ngIf="ngContentRef.children.length !== 0">
+        <mat-divider [vertical]="true"></mat-divider>
+    </ng-container>
+    <div #ngContentRef>
+        <ng-content></ng-content>
+    </div>
+</div>

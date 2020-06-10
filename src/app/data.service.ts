@@ -11,12 +11,14 @@ export class DataService {
   getData(): Observable<any[]> {
     return of([
       {
+        _id: "zeofhz3FEOcfha",
         firstName: "John",
         lastName: "Doe",
         birthDate: "1987-06-02T00:00:00.000Z",
         children: 0
       },
       {
+        _id: "zeofzd42DOcFhu",
         firstName: "Mike",
         lastName: "Penn",
         birthDate: "1959-01-23T00:00:00.000Z",
@@ -27,6 +29,12 @@ export class DataService {
 
   getDataSchemaColumns(): Observable<ColumnConfig[]> {
     return of([
+      {
+        _class: "string",
+        name: "_id",
+        description: "ID",
+        required: true
+      },
       {
         _class: "string",
         name: "firstName",

@@ -6,6 +6,7 @@ import { DynamicTableModule } from "./components/dae-dynamic-table/dynamic-table
 import { DaeDatatableHeaderModule } from "./components/dae-datatable-header/dae-datatable-header.module";
 import { DynamicFormModule } from "./components/dae-dynamic-form/dynamic-form.module";
 import { DaeOverlaySpinnerModule } from "./components/dae-overlay-spinner/dae-overlay-spinner.module";
+import { MatConfirmDialogComponent } from "./components/mat-confirm-dialog/mat-confirm-dialog.component"
 
 @NgModule({
     imports: [
@@ -19,6 +20,10 @@ import { DaeOverlaySpinnerModule } from "./components/dae-overlay-spinner/dae-ov
         DaeOverlaySpinnerModule
     ],
     declarations: [
+        MatConfirmDialogComponent
+    ],
+    entryComponents: [
+        MatConfirmDialogComponent
     ],
     exports: [
         DaeDatatableHeaderModule,
