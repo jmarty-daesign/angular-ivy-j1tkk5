@@ -1,11 +1,13 @@
 import { SharedModule } from "./shared/shared.module";
-import { NgModule } from "@angular/core";
+import { NgModule, LOCALE_ID } from "@angular/core";
 import { AppComponent } from "./app.component";
 import { BrowserModule } from "@angular/platform-browser";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { DataService } from "./data.service";
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatDialogModule } from '@angular/material';
+import localeFr from '@angular/common/locales/fr';
+import { registerLocaleData } from "@angular/common";
+registerLocaleData(localeFr);
 
 @NgModule({
     declarations: [AppComponent],
@@ -16,7 +18,8 @@ import { MatDialogModule } from '@angular/material';
         MatDialogModule
     ],
     providers: [
-      DataService
+      DataService,
+      { provide: LOCALE_ID, useValue: 'fr-FR'}
     ],
     bootstrap: [
       AppComponent

@@ -100,13 +100,13 @@ export class FilteredDataSource<T> extends MatTableDataSource<T> {
      */
     private _filterDates(filterForColumn, dataForColumn) {
         let dataColumnDate = new Date(dataForColumn);
-        if (filterForColumn.le && filterForColumn.ge) {  
-            if (dataColumnDate.getTime() >= filterForColumn.ge.getTime() && dataColumnDate.getTime() <= filterForColumn.le.getTime()) {
+        if (filterForColumn.le && filterForColumn.ge) {
+            if (dataColumnDate.getTime() >= new Date(filterForColumn.ge).getTime() && dataColumnDate.getTime() <= new Date(filterForColumn.le).getTime()) {
                 return true;
             }
-        } else if (filterForColumn.ge && dataColumnDate.getTime() >= filterForColumn.ge.getTime()) {
+        } else if (filterForColumn.ge && dataColumnDate.getTime() >= new Date(filterForColumn.ge).getTime()) {
             return true;
-        } else if (filterForColumn.le && dataColumnDate.getTime() <= filterForColumn.le.getTime()) {
+        } else if (filterForColumn.le && dataColumnDate.getTime() <= new Date(filterForColumn.le).getTime()) {
             return true;
         }
     }
