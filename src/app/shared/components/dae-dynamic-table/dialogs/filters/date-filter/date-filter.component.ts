@@ -39,4 +39,12 @@ export class DateFilterComponent implements OnInit {
             this.dialogRef.close('');
         }
     }
+
+    /**
+     * Get a new date filter object for a given column
+     * @param columnName 
+     */
+    getFilter(columnName: string) {
+        return new DateFilter(columnName);
+    }
 }

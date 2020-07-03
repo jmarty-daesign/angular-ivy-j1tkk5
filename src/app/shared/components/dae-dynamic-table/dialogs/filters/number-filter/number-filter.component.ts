@@ -33,4 +33,12 @@ export class NumberFilterComponent implements OnInit {
         else
             this.dialogRef.close('');
     }
+
+    /**
+     * Get a new number filter object for a given column
+     * @param columnName 
+     */
+    getFilter(columnName: string) {
+        return new NumberFilter(columnName);
+    }
 }

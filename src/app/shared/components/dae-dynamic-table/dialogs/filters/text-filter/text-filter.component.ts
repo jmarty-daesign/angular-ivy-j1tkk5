@@ -33,4 +33,12 @@ export class TextFilterComponent implements OnInit {
         else
             this.dialogRef.close('');
     }
+
+    /**
+     * Get a new text filter object for a given column
+     * @param columnName 
+     */
+    getFilter(columnName: string) {
+        return new TextFilter(columnName);
+    }
 }

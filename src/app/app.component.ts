@@ -68,7 +68,20 @@ export class AppComponent implements OnInit {
   }
 
   /**
+   * Retrieve the list of students and the service data 
+   * schema for columns display and filter it based on ACLs.
+   */
+  private _getData(): void {
+    this.people$ = this._dataService.getData().pipe(
+      map((people) => new FilteredDataSource<any>(people))
+    );
+    this.columns$ = this._dataService.getDataSchemaColumns();
+  }
+
+  /**
    * Retrieve the selected objects from the table datasource filtered data.
+   * If data is seleced with checkbox then filtered, it stays selected in 
+   * background but it is not included in the selection here.
    */
   private _getSelectedObjects() {
     const selectedObjects = this.dataTable.dataSource.filteredData.filter(data => 
@@ -92,17 +105,6 @@ export class AppComponent implements OnInit {
   public onAction2Clicked(event: Event) {
     const selectedObjects = this._getSelectedObjects();
     debugger
-  }
-
-  /**
-   * Retrieve the list of students and the service data 
-   * schema for columns display and filter it based on ACLs.
-   */
-  private _getData(): void {
-    this.people$ = this._dataService.getData().pipe(
-      map((people) => new FilteredDataSource<any>(people))
-    );
-    this.columns$ = this._dataService.getDataSchemaColumns();
   }
 
   /**

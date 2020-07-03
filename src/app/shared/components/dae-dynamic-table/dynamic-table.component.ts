@@ -16,6 +16,15 @@ import { ColumnFilter } from './dynamic-table.model';
 import { DaeOverlaySpinnerService } from '../dae-overlay-spinner/dae-overlay-spinner.service';
 import { SelectionModel } from '@angular/cdk/collections';
 
+export interface localStorageFilters {
+  [key: string]: filter[]
+}
+
+export interface filter {
+  key: any;
+  value: any;
+}
+
 @Component({
   selector: 'dae-dynamic-table',
   templateUrl: './dynamic-table.component.html',
@@ -45,11 +54,13 @@ export class DynamicTableComponent implements OnInit {
   dataSource: FilteredDataSource<any>;
   searchModel: string;
   titleBadge: number = 0;
+  localStorageFiltersItem: string = `filters:${window.location.pathname}`;
 
   @ViewChild(MatSort) private sort: MatSort;
   @ViewChild(MatPaginator) private internalPaginator: MatPaginator;
 
-  private _appliedFilters: { [key: string]: any; } = {}; 
+  private _appliedFilters: { [key: string]: any } = {};
+  private _storedAppliedFilters: { [key: string]: { [key: string]: any }[] } = {}; 
   private _columnsSubscription: Subscription;
   private _dataSourceSubscription: Subscription;
   
@@ -67,6 +78,25 @@ export class DynamicTableComponent implements OnInit {
     this._getDataSource();
     this._getColumns();
     this._setPaginator();
+    this._applyLocalStorageFilters();
+  }
+
+
+  private _applyLocalStorageFilters() {
+    const localStoredFilters = localStorage.getItem(this.localStorageFiltersItem);
+    if (!!localStoredFilters ){
+      const parsedStoredFilters = JSON.parse(localStoredFilters) as localStorageFilters;
+      Object.keys(parsedStoredFilters).forEach(filterType => {
+        const typedFiltersToApply = parsedStoredFilters[filterType];
+        typedFiltersToApply.forEach(typedFilter => {
+          let storedFilterComponent = this.columnFilterService.getFilter(filterType);
+          let finalFilter = storedFilterComponent.prototype.getFilter(typedFilter.key);
+          finalFilter.value = typedFilter.value.value;
+          this._appliedFilters[typedFilter.key] = finalFilter;
+        });
+      });
+      this.updateDataSource();
+    }
   }
 
   /**
@@ -217,7 +247,10 @@ export class DynamicTableComponent implements OnInit {
     const dialogConfig = new MatDialogConfig();
     dialogConfig.data = columnFilter;
     const dialogRef = this._dialog.open(filter, dialogConfig);
-    dialogRef.afterClosed().subscribe(result => this._applyFilter(result, column));
+    dialogRef.afterClosed().subscribe(result => {
+      this._applyFilter(result, column);
+      this._storeFilterToLocalStorage();
+    });
   }
 
   /**
@@ -259,6 +292,29 @@ export class DynamicTableComponent implements OnInit {
       this.updateDataSource();
   }
 
+  private _storeFilterToLocalStorage() {
+    const registeredFilters = this.columnFilterService.filters;
+    Object.entries(this._appliedFilters).forEach(
+      ([key, value]) => {
+        let filterDataType = "";
+        Object.keys(registeredFilters).forEach(type => {
+          if (registeredFilters[type].name.includes(value.constructor.name))
+            filterDataType = type;
+        })
+        if (!this._storedAppliedFilters[filterDataType])
+          this._storedAppliedFilters[filterDataType] = [];
+        const filter = { key, value };
+        if (this._storedAppliedFilters[filterDataType].filter(storedFilter => storedFilter.key == filter.key).length == 0)
+          this._storedAppliedFilters[filterDataType].push(filter);
+        else {
+          const filterIndex = this._storedAppliedFilters[filterDataType].findIndex(storedFilter => storedFilter.key == filter.key);
+          this._storedAppliedFilters[filterDataType][filterIndex] = filter;
+        }
+      }
+    );
+    localStorage.setItem(this.localStorageFiltersItem, JSON.stringify(this._storedAppliedFilters));
+  }
+
   /**
    * Clear all filter applied to the datasource.
    */
@@ -281,8 +337,8 @@ export class DynamicTableComponent implements OnInit {
    */
   public getFilters() {
     const filters = this._appliedFilters;
-    const filterArray = Object.keys(filters).map((key) => filters[key]);
-    return filterArray;
+    const filtersArray = Object.keys(filters).map((key) => filters[key]);
+    return filtersArray;
   }
 
   /**

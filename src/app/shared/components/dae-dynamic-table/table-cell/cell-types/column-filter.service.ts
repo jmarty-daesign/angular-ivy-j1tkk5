@@ -21,4 +21,11 @@ export class ColumnFilterService {
         const component = this.registeredFilters[type];
         return component;
     }
+
+    /**
+     * Getter for registered filters
+     */
+    get filters() {
+        return this.registeredFilters;
+    }
 }
