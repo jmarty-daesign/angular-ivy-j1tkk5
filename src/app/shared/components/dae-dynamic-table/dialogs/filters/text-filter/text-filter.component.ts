@@ -20,8 +20,8 @@ export class TextFilterComponent implements OnInit {
      * Component initialization lifecycle hook.
      */
     ngOnInit() {
-        this.displayName = this.filterData.column.description;
-        this.model = this.filterData.filter || new TextFilter(this.filterData.column.name);
+        this.displayName = this.filterData.column.localname;
+        this.model = this.filterData.filter || new TextFilter(this.filterData.column.tag);
     }
 
     /**
@@ -32,13 +32,5 @@ export class TextFilterComponent implements OnInit {
             this.dialogRef.close(this.model);
         else
             this.dialogRef.close('');
-    }
-
-    /**
-     * Get a new text filter object for a given column
-     * @param columnName 
-     */
-    getFilter(columnName: string) {
-        return new TextFilter(columnName);
     }
 }

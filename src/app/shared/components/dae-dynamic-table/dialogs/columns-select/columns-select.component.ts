@@ -1,6 +1,5 @@
 import { Component, OnInit, Inject } from '@angular/core';
-import { ColumnConfig } from '../../column-config.model';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { FormGroup, FormBuilder, FormArray, FormControl, ValidatorFn } from '@angular/forms';
 
 @Component({
@@ -40,7 +39,7 @@ export class ColumnsSelectComponent implements OnInit {
    */
   private _filterColumns() {
     this.filteredColumns = this.data.columns.slice().filter(column => 
-      column.name != 'select' && column.name != 'options'
+      column.tag != 'select' && column.tag != 'options' && !!column.visible
     );
   }
 
@@ -59,7 +58,7 @@ export class ColumnsSelectComponent implements OnInit {
   private _addCheckboxes() {
     this.filteredColumns.forEach((column, i) => {
       let columnSelected: boolean = false;
-      if ( this.data.displayedColumns.includes(column.name))
+      if ( this.data.displayedColumns.includes(column.tag))
         columnSelected = true;
       const control = new FormControl(columnSelected);
       (this.form.controls.columns as FormArray).push(control);
@@ -71,13 +70,31 @@ export class ColumnsSelectComponent implements OnInit {
    * and re-add the select and options columns.
    */
   public submit() {
-    const selectedColumnsNames = this.form.value.columns
-      .map((columnSelected, index) => 
-        columnSelected ? this.filteredColumns[index].name : null)
-      .filter(v => v !== null);
-    selectedColumnsNames.splice(0,0,"select");
-    selectedColumnsNames.push("options");
+    const selectedColumnsNames = this._getSelectedColumns();
+    this._handleSelectOptionsColumnsDisplay(selectedColumnsNames);
     this.dialogRef.close({ selectedColumns: selectedColumnsNames });
+  }
+
+  /**
+   * Retrieve the selected column names from the form values.
+   */
+  private _getSelectedColumns() {
+    return this.form.value.columns
+      .map((columnSelected, index) => 
+        columnSelected ? this.filteredColumns[index].tag : null)
+      .filter(v => 
+        v !== null);
+  }
+
+  /**
+   * Handle display of select and options columns based on component config.
+   * @param selectedColumnsNames Array of selected column names
+   */
+  private _handleSelectOptionsColumnsDisplay(selectedColumnsNames: string[]) {
+    if (this.data.selectionEnabled)
+      selectedColumnsNames.splice(0, 0, "select");
+    if (this.data.modifyEnabled || this.data.deleteEnabled)
+      selectedColumnsNames.push("options");
   }
 
   /**

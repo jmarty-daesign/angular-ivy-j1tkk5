@@ -11,7 +11,6 @@ import { ColumnFilter } from '../../../dynamic-table.model';
 export class DateFilterComponent implements OnInit {
 
     model: DateFilter;
-
     displayName: string;
 
     public constructor(
@@ -25,26 +24,16 @@ export class DateFilterComponent implements OnInit {
      * Component initialization lifecycle hook.
      */
     ngOnInit() {
-        this.displayName = this.filterData.column.description;
-        this.model = this.filterData.filter || new DateFilter(this.filterData.column.name);
+        this.displayName = this.filterData.column.localname;
+        this.model = this.filterData.filter || new DateFilter(this.filterData.column.tag);
     }
 
     /**
      * Triggers the date filter apply and close the dialog.
      */
     apply() {
-        if (this.model.fromDate || this.model.toDate) {
-            this.dialogRef.close(this.model);
-        } else {
-            this.dialogRef.close('');
-        }
-    }
-
-    /**
-     * Get a new date filter object for a given column
-     * @param columnName 
-     */
-    getFilter(columnName: string) {
-        return new DateFilter(columnName);
+        (this.model.fromDate || this.model.toDate) 
+            ? this.dialogRef.close(this.model) 
+            : this.dialogRef.close('');
     }
 }

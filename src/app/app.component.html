@@ -1,11 +1,13 @@
 <div class="mat-elevation-z2 dae-container">
-  <dae-dynamic-table #dataTable 
+  <dae-dynamic-table #dataTable
+    id="dataTable"
     [title]="'Personnes'"
     [columns$]="columns$"
     [dataSource$]="people$"
     [selectionEnabled]="true"
     [modifyEnabled]="true"
     [deleteEnabled]="true"
+    [paginate]="false"
     (addElement)="onAdd($event)"
     (modifyElement)="onModify($event)"
     (deleteElement)="onDelete($event)">
@@ -16,4 +18,6 @@
         <button mat-menu-item (click)="onAction2Clicked($event)">Action 2</button>
       </mat-menu>
   </dae-dynamic-table>
+  <br>
+  <button (click)="addDataToTable()">Add data to table</button>
 </div>

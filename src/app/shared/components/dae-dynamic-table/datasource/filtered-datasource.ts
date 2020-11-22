@@ -1,5 +1,5 @@
 import { MatTableDataSource } from '@angular/material/table';
-import { TableFilter } from '../dynamic-table.model';
+import { EFilterOperator, TableFilter } from '../dynamic-table.model';
 
 export class FilteredDataSource<T> extends MatTableDataSource<T> {
     private _filters: TableFilter[];
@@ -19,13 +19,13 @@ export class FilteredDataSource<T> extends MatTableDataSource<T> {
      */
      filterPredicate = (data: T): boolean => {
         let predicate = false;
-        if ((!this._filters || !this._filters.length) && this.filter == ' ')
+        if ((!this._filters || !this._filters.length) && this.filter === ' ')
             predicate = true;
         if ( !!this.filter && this.filter != ' ' && !!this._filters && !!this._filters.length)
             predicate = this._singleFilterPredicate(data) && this._filtersPredicates(data);
         else if (!!this.filter && this.filter != ' ' )
             predicate = this._singleFilterPredicate(data);
-        else if ( this.filter == ' ' && !!this._filters && !!this._filters.length)
+        else if ( this.filter === ' ' && !!this._filters && !!this._filters.length)
             predicate = this._filtersPredicates(data);
         return predicate;
     }
@@ -36,7 +36,7 @@ export class FilteredDataSource<T> extends MatTableDataSource<T> {
      */
     private _singleFilterPredicate(data: T): boolean {
         return Object.keys(data).some((key) => {
-            return typeof data[key] == "string" && data[key].trim().toLowerCase().includes(this.filter);
+            return typeof data[key] === "string" && data[key].trim().toLowerCase().includes(this.filter);
         });
     }
 
@@ -65,15 +65,48 @@ export class FilteredDataSource<T> extends MatTableDataSource<T> {
      */
     private matchesFilter(filterForColumn: any, dataForColumn: any): boolean {
         if ( !!dataForColumn ) {
-            if (filterForColumn.contains && dataForColumn.includes(filterForColumn.contains)) {
-                return true;
-            }
-            if ( typeof(dataForColumn) == "number") {
+            if ( typeof(dataForColumn) === "object") {
+                return this._filterArray(filterForColumn, dataForColumn);
+            } else if ( typeof(dataForColumn) === "number") {
                 return this._filterNumbers(filterForColumn, dataForColumn);
+            } else if ( typeof(dataForColumn) === "string" &&  !!filterForColumn.contains) {
+                return this._filterStrings(filterForColumn, dataForColumn);
             } else {
                 return this._filterDates(filterForColumn, dataForColumn);
             }
         }
+    }
+
+    /**
+     * Filter strings data if it contains a given substring.
+     * @param filterForColumn The filter to apply.
+     * @param dataForColumn The data to filter.
+     */
+    private _filterStrings(filterForColumn, dataForColumn) {
+        if (dataForColumn.toLowerCase().includes(filterForColumn.contains.toLowerCase())) {
+            return true;
+        }
+    }
+
+    /**
+     * Filter array data if it contains a given substring in the reference field attribute.
+     * @param filterForColumn The filter to apply.
+     * @param dataForColumn The data to filter.
+     */
+    private _filterArray(filterForColumn, dataForColumn) {
+        const elements = filterForColumn.elements;
+        const operator = filterForColumn.operator;
+        return operator === EFilterOperator.AND
+            ? elements.reduce((accumulator, currentValue) =>
+                accumulator && dataForColumn.some(object => object[filterForColumn.referenceField] === currentValue), true)
+            : elements.reduce((accumulator, currentValue) => 
+                accumulator || dataForColumn.some(object => object[filterForColumn.referenceField] === currentValue), false);
+        // LOOK IN ALL FIELDS
+        // return operator === EFilterOperator.AND
+        //     ? elements.reduce((accumulator, currentValue) =>
+        //         accumulator && dataForColumn.some(object => Object.keys(object).some(key => object[key] === currentValue)), true)
+        //     : elements.reduce((accumulator, currentValue) => 
+        //         accumulator || dataForColumn.some(object => Object.keys(object).some(key => object[key] === currentValue)), false);
     }
 
     /**
@@ -100,14 +133,28 @@ export class FilteredDataSource<T> extends MatTableDataSource<T> {
      */
     private _filterDates(filterForColumn, dataForColumn) {
         let dataColumnDate = new Date(dataForColumn);
-        if (filterForColumn.le && filterForColumn.ge) {
-            if (dataColumnDate.getTime() >= new Date(filterForColumn.ge).getTime() && dataColumnDate.getTime() <= new Date(filterForColumn.le).getTime()) {
+        if (filterForColumn.le && filterForColumn.ge) {  
+            if ( typeof(filterForColumn.le) === 'string' || 'object' && typeof(filterForColumn.ge) === 'string' || 'object' ) {
+                filterForColumn.ge = new Date(filterForColumn.ge);
+                filterForColumn.le = new Date(filterForColumn.le);
+            }
+            if (dataColumnDate.getTime() >= filterForColumn.ge.getTime() && dataColumnDate.getTime() <= filterForColumn.le.getTime()) {
                 return true;
             }
-        } else if (filterForColumn.ge && dataColumnDate.getTime() >= new Date(filterForColumn.ge).getTime()) {
-            return true;
-        } else if (filterForColumn.le && dataColumnDate.getTime() <= new Date(filterForColumn.le).getTime()) {
-            return true;
+        } else if (filterForColumn.ge ) {
+            if ( typeof(filterForColumn.ge) === 'string' || 'object') {
+                filterForColumn.ge = new Date(filterForColumn.ge);
+            }
+            if (dataColumnDate.getTime() >= filterForColumn.ge.getTime()) {
+                return true;
+            }
+        } else if (filterForColumn.le ) {
+            if ( typeof(filterForColumn.le) === 'string' || 'object' ) {
+                filterForColumn.le = new Date(filterForColumn.le);
+            }
+            if (dataColumnDate.getTime() <= filterForColumn.le.getTime()) {
+                return true;
+            }
         }
     }
 }

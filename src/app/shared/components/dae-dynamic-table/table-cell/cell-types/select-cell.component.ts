@@ -1,11 +1,10 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { ColumnConfig } from '../../column-config.model';
-import { CellComponent } from '../../dynamic-table.model';
+import { CellComponent, ColumnConfig } from '../../dynamic-table.model';
 import { SelectionModel } from '@angular/cdk/collections';
 
 @Component({
   selector: 'app-select',
-  template: '<mat-checkbox (click)="$event.stopPropagation()"'
+  template: '<mat-checkbox color="primary" (click)="$event.stopPropagation()"'
             + '[checked]="selection.isSelected(row)"'
             + '(change)="selectElement(row)">'
             +'</mat-checkbox>'

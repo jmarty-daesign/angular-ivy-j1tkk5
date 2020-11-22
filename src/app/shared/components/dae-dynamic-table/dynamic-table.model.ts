@@ -1,13 +1,17 @@
 import { EventEmitter } from "@angular/core";
 import { SelectionModel } from "@angular/cdk/collections";
-
 export class ColumnConfig {
-    name: string;
-    description?: string;
-    _class: string;
+    tag: string;
+    localname?: string;
+    type: string;
+    ref?: string;
+    mode?: number;
+    indice?: string;
+    visible?: number;
     options?: any;
-    sticky?: string;
-    sort?: boolean;
+    link?: string;
+    iconsMap?: any;
+    iconTooltip?: string;
 }
 
 export interface CellComponent {
@@ -24,8 +28,20 @@ export interface CellComponent {
 export class ColumnFilter {
     column: ColumnConfig;
     filter: any;
+    elements?: any[];
 }
 
 export interface TableFilter {
     getFilter(): object;
+}
+
+export enum ElocalStorageItem {
+    COLUMN = 'columns',
+    FILTERS = 'filters',
+    SEARCH = 'search'
+}
+
+export enum EFilterOperator {
+    OR = 'OU',
+    AND = 'ET'
 }

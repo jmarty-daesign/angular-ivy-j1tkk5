@@ -1,8 +1,7 @@
 import { Component, ComponentFactoryResolver, Input, ViewChild, OnInit, Output, EventEmitter } from '@angular/core';
 import { CellDirective } from './cell.directive';
 import { CellService } from './cell-types/cell.service';
-import { ColumnConfig } from '../column-config.model';
-import { CellComponent } from '../dynamic-table.model';
+import { CellComponent, ColumnConfig } from '../dynamic-table.model';
 import { SelectionModel } from '@angular/cdk/collections';
 
 @Component({
@@ -37,7 +36,7 @@ export class TableCellComponent implements OnInit {
      * Initialize the cell from component factory regarding the cell data type.
      */
     private _initCell() {
-        const cellComponent = this.cellService.getCell(this.column._class);
+        const cellComponent = this.cellService.getCell(this.column.type);
         const componentFactory = this.componentFactoryResolver.resolveComponentFactory(cellComponent);
         const componentRef = this._createComponentFromFactory(componentFactory);
         const cell = this._mapCell(componentRef);

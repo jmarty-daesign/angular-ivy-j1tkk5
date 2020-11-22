@@ -1,0 +1,37 @@
+<form (ngSubmit)="apply()">
+    <h2 mat-dialog-title>Filtrer par {{ displayName | lowercase }}</h2>
+    <mat-dialog-content>
+      <mat-form-field class="array-filter-chip-list">
+        <mat-chip-list #chipList>
+          <mat-chip
+            *ngFor="let element of model.elements"
+            [selectable]="selectable"
+            [removable]="removable"
+            (removed)="removeElement(element)">
+            {{element}}
+            <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+          </mat-chip>
+          <input
+            placeholder="Contient le/les éléments {{ displayName | lowercase }} ..."
+            #elementInput
+            [formControl]="elementControl"
+            [matAutocomplete]="auto"
+            [matChipInputFor]="chipList">
+        </mat-chip-list>
+        <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)" [displayWith]="displayElementFunction.bind(this)">
+          <mat-option #options *ngFor="let filteredElement of filteredElements | async" [value]="element">
+            {{filteredElement[filterData.column.ref]}}
+          </mat-option>
+        </mat-autocomplete>
+      </mat-form-field>
+      <mat-form-field class="array-filter-operator-select">
+        <mat-select [disabled]="model.elements.length < 2" placeholder="Opérateur" [(value)]="model.operator">
+          <mat-option [value]="operator" *ngFor="let operator of operators">{{ operator }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </mat-dialog-content>
+    <mat-dialog-actions>
+      <button mat-button mat-dialog-close>Supprimer</button>
+      <button mat-button type="submit">Appliquer</button>
+    </mat-dialog-actions>
+  </form>

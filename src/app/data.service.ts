@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ColumnConfig } from './shared/components/dae-dynamic-table/column-config.model';
 import { of } from 'rxjs/observable/of';
+import { ColumnConfig } from './shared/components/dae-dynamic-table/dynamic-table.model';
 
 @Injectable()
 export class DataService {
@@ -30,34 +30,63 @@ export class DataService {
   getDataSchemaColumns(): Observable<ColumnConfig[]> {
     return of([
       {
-        _class: "string",
-        name: "_id",
-        description: "ID",
-        required: true
+        type: "string",
+        tag: "_id",
+        localname: "ID",
+        required: true,
+        visible: 2,
+        mode: 5
       },
       {
-        _class: "string",
-        name: "firstName",
-        description: "Prénom",
-        required: true
+        type: "string",
+        tag: "firstName",
+        localname: "Prénom",
+        required: true,
+        visible: 2,
+        mode: 5
       },
       {
-        _class: "string",
-        name: "lastName",
-        description: "Nom",
-        required: true
+        type: "string",
+        tag: "lastName",
+        localname: "Nom",
+        required: true,
+        visible: 2,
+        mode: 5
       },
       {
-        _class: "date",
-        name: "birthDate",
-        description: "Date de naissance",
-        required: true
+        type: "date",
+        tag: "birthDate",
+        localname: "Date de naissance",
+        required: true,
+        visible: 2,
+        mode: 5
       },
       {
-        _class: "number",
-        name: "children",
-        description: "Nombre d'enfants",
-        required: true
+        type: "number",
+        tag: "children",
+        localname: "Nombre d'enfants",
+        required: true,
+        visible: 2,
+        mode: 5
+      }
+    ]);
+  }
+
+  getDataToAdd(): Observable<any[]> {
+    return of([
+      {
+        _id: "zeofhzDDzzOcfha",
+        firstName: "Jim",
+        lastName: "Doe",
+        birthDate: "1981-10-22T00:00:00.000Z",
+        children: 12
+      },
+      {
+        _id: "ze524562DOcFhu",
+        firstName: "Nigel",
+        lastName: "Flint",
+        birthDate: "1945-12-22T00:00:00.000Z",
+        children: 89
       }
     ]);
   }

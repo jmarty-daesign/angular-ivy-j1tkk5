@@ -1,12 +1,13 @@
 import { Component, ViewChild, OnInit } from '@angular/core';
 import { Observable, Subscription } from 'rxjs';
-import { ColumnConfig } from './shared/components/dae-dynamic-table/column-config.model';
 import { of } from 'rxjs/observable/of';
-import { FilteredDataSource } from './shared/components/dae-dynamic-table/datasource/filtered-datasource';
 import { DynamicTableComponent } from './shared/components/dae-dynamic-table/dynamic-table.component';
 import { MatRipple, RippleRef, RippleState } from '@angular/material';
 import { DataService } from './data.service';
 import { map } from 'rxjs/operators';
+import { concat } from 'rxjs/observable/concat';
+import { combineLatest } from 'rxjs/observable/combineLatest';
+import { ColumnConfig } from './shared/components/dae-dynamic-table/dynamic-table.model';
 
 @Component({
   selector: 'app-root',
@@ -14,16 +15,16 @@ import { map } from 'rxjs/operators';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
- 
+
   columns$: Observable<ColumnConfig[]> = of([]);
-  people$: Observable<FilteredDataSource<any>> = of(new FilteredDataSource<any>([]));
-  @ViewChild(DynamicTableComponent) dataTable : DynamicTableComponent;
+  people$: Observable<any> = of([]);
+  @ViewChild(DynamicTableComponent) dataTable: DynamicTableComponent;
   @ViewChild(MatRipple) actionMenuButton: MatRipple;
 
   private _rippleReference: RippleRef;
   private _dataSelectionSubscription: Subscription;
 
-  constructor( private _dataService: DataService ) { } 
+  constructor( private _dataService: DataService ) { }
 
   /**
    * Component initialization lifecycle hook.
@@ -50,10 +51,12 @@ export class AppComponent implements OnInit {
    */
   private _handleActionMenuRipple(selection) {
     const selectedObjects = selection.source.selected;
-    if (selectedObjects.length > 0 && !this._rippleReference || this._rippleReference.state == RippleState.HIDDEN)
+    if (selectedObjects.length > 0 && !this._rippleReference || this._rippleReference.state === RippleState.HIDDEN) {
       this._launchRipple();
-    if (selectedObjects.length == 0)
+    }
+    if (selectedObjects.length === 0) {
       this._rippleReference.fadeOut();
+    }
   }
 
   /** 
@@ -72,9 +75,7 @@ export class AppComponent implements OnInit {
    * schema for columns display and filter it based on ACLs.
    */
   private _getData(): void {
-    this.people$ = this._dataService.getData().pipe(
-      map((people) => new FilteredDataSource<any>(people))
-    );
+    this.people$ = this._dataService.getData();
     this.columns$ = this._dataService.getDataSchemaColumns();
   }
 
@@ -129,6 +130,17 @@ export class AppComponent implements OnInit {
    */
   public onDelete(object: any) {
     debugger
+  }
+
+  /**
+   * Add records to table.
+   */
+  public addDataToTable() {
+    const newPeople$ = this._dataService.getDataToAdd();
+    combineLatest(this.people$, newPeople$).pipe(
+      map(([peolpe, newPeople]) => concat(peolpe, newPeople))
+    ).subscribe(() => this.dataTable.refreshData());
+
   }
 
   /**

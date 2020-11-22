@@ -1,6 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { ColumnConfig } from '../../column-config.model';
-import { CellComponent } from '../../dynamic-table.model';
+import { CellComponent, ColumnConfig } from '../../dynamic-table.model';
 
 @Component({
   selector: 'app-options',
