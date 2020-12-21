@@ -6,10 +6,15 @@
                 ...
             </mat-panel-title>
         </mat-expansion-panel-header>
-        <div>
+        <div *ngIf="!!column.ref && column.ref !== ''">
             <ul class="array-cell-item-list">
                 <li *ngFor="let element of row[column.tag]">{{ element[column.ref] }}</li>
             </ul>
         </div>
+        <div *ngIf="column.ref === '' || !column.ref">
+            <ul class="array-cell-item-list">
+                <li *ngFor="let element of row[column.tag]">{{ element }}</li>
+            </ul>
+        </div>  
     </mat-expansion-panel>
 </mat-accordion>

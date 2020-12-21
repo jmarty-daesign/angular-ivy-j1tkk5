@@ -1,7 +1,7 @@
 import { Component, ComponentFactoryResolver, Input, ViewChild, OnInit, Output, EventEmitter } from '@angular/core';
 import { CellDirective } from './cell.directive';
 import { CellService } from './cell-types/cell.service';
-import { CellComponent, ColumnConfig } from '../dynamic-table.model';
+import { CellComponent, ColumnConfig, IDictionary } from '../dynamic-table.model';
 import { SelectionModel } from '@angular/cdk/collections';
 
 @Component({
@@ -14,6 +14,7 @@ export class TableCellComponent implements OnInit {
 
     @Input() row: object;
     @Input() column: ColumnConfig;
+    @Input() lists: IDictionary<any[]>;
     @Input() selection: SelectionModel<any>;
     @Input() modifyEnabled: boolean;
     @Output() modifyElement = new EventEmitter<any>();
@@ -64,6 +65,7 @@ export class TableCellComponent implements OnInit {
         const cell = componentRef.instance as CellComponent;
         cell.row = this.row;
         cell.column = this.column;
+        cell.lists = this.lists;
         cell.modifyEnabled = this.modifyEnabled;
         cell.deleteEnabled = this.deleteEnabled;
         return cell;

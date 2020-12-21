@@ -9,6 +9,7 @@ import { ColumnFilterService } from './table-cell/cell-types/column-filter.servi
 export { CellService, CellDirective, ColumnFilterService };
 import { TextCellComponent } from './table-cell/cell-types/text-cell.component';
 import { DateCellComponent } from './table-cell/cell-types/date-cell.component';
+import { MaterialModule } from '../../material.module';
 import { NumberFilterComponent } from './dialogs/filters/number-filter/number-filter.component';
 import { TextFilterComponent } from './dialogs/filters/text-filter/text-filter.component';
 import { DateFilterComponent } from './dialogs/filters/date-filter/date-filter.component';
@@ -22,7 +23,10 @@ import { ArrayCellComponent } from './table-cell/cell-types/array-cell.component
 import { ArrayFilterComponent } from './dialogs/filters/array-filter/array-filter.component';
 import { RouterModule } from '@angular/router';
 import { IconCellComponent } from './table-cell/cell-types/icon-cell.component';
-import { MaterialModule } from '../../material.module';
+import { SharedModule } from '../../shared.module';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { ListCellComponent } from './table-cell/cell-types/list-cell.component';
+import { ListValuePipe } from './table-cell/cell-types/list-value.pipe';
 
 @NgModule({
   imports: [
@@ -30,10 +34,12 @@ import { MaterialModule } from '../../material.module';
     MaterialModule,
     FormsModule,
     RouterModule,
+    SharedModule,
     ReactiveFormsModule,
     DaeDatatableHeaderModule,
     DynamicFormModule,
-    DaeOverlaySpinnerModule
+    DaeOverlaySpinnerModule,
+    TranslateModule
   ],
   declarations: [
     DynamicTableComponent,
@@ -49,7 +55,9 @@ import { MaterialModule } from '../../material.module';
     OptionsCellComponent,
     SelectCellComponent,
     ArrayCellComponent,
-    IconCellComponent
+    IconCellComponent,
+    ListCellComponent,
+    ListValuePipe
   ],
   exports: [DynamicTableComponent],
   entryComponents: [
@@ -63,7 +71,8 @@ import { MaterialModule } from '../../material.module';
     DateFilterComponent,
     NumberFilterComponent,
     ArrayFilterComponent,
-    ColumnsSelectComponent
+    ColumnsSelectComponent,
+    ListCellComponent
   ],
   providers: [
     CellService,
@@ -79,6 +88,7 @@ export class DynamicTableModule {
     cellService.registerCell('select', SelectCellComponent);
     cellService.registerCell('array', ArrayCellComponent);
     cellService.registerCell('icon', IconCellComponent);
+    cellService.registerCell('list', ListCellComponent);
     columnFilterService.registerFilter('string', TextFilterComponent);
     columnFilterService.registerFilter('date', DateFilterComponent);
     columnFilterService.registerFilter('number', NumberFilterComponent);

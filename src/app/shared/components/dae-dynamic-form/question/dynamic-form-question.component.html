@@ -3,7 +3,7 @@
     <div [ngSwitch]="question.controlType">
   
       <mat-form-field *ngSwitchCase="'textbox'">
-        <input matInput [placeholder]="question.label" 
+        <input matInput [placeholder]="question.label | translate"
           [id]="question.key" [type]="question.type" [formControlName]="question.key">
       </mat-form-field>
 

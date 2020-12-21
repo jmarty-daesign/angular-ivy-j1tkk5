@@ -31,8 +31,11 @@ export class DynamicFormComponent implements OnInit {
 
   /**
    * Handles the form submission.
+   * Add the object id if we are in edit mode.
    */
   onSubmit() {
+    if ( !!this.form.controls && !!this.form.controls._id )
+      this.form.value["_id"] = this.form.controls._id.value;
     this.submit.emit(this.form.value);
   }
 

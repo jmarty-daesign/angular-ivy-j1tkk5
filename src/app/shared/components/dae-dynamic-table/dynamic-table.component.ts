@@ -1,17 +1,17 @@
-import { Component, OnInit, ViewChild, Input, Output, EventEmitter, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, Input, Output, EventEmitter, ElementRef, OnChanges, OnDestroy } from '@angular/core';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { ColumnFilterService } from './table-cell/cell-types/column-filter.service';
 import { Observable, Subscription } from 'rxjs';
-import { filter, map, tap } from 'rxjs/operators';
+import { filter, tap } from 'rxjs/operators';
 import { ColumnsSelectComponent } from './dialogs/columns-select/columns-select.component';
 import { FilteredDataSource } from './datasource/filtered-datasource';
 import { DynamicFormDialogComponent } from '../dae-dynamic-form/dialog/dynamic-form-dialog.component';
 import { QuestionService } from '../dae-dynamic-form/question/question.service';
 import { QuestionBase } from '../dae-dynamic-form/question/question-base';
 import { MatConfirmDialogComponent } from '../mat-confirm-dialog/mat-confirm-dialog.component';
-import { ColumnFilter, ColumnConfig, ElocalStorageItem } from './dynamic-table.model';
+import { ColumnFilter, ColumnConfig, ElocalStorageItem, IDictionary } from './dynamic-table.model';
 import { SelectionModel } from '@angular/cdk/collections';
 import DynamicFilter from './dialogs/filters/dynamic-filter';
 import * as _ from 'lodash';
@@ -21,45 +21,45 @@ import * as _ from 'lodash';
   templateUrl: './dynamic-table.component.html',
   styleUrls: ['./dynamic-table.component.scss']
 })
-export class DynamicTableComponent implements OnInit {
+export class DynamicTableComponent implements OnInit, OnChanges, OnDestroy {
 
   @Input() title: string;
-  @Input() displayHeader: boolean = true;
+  @Input() displayHeader = true;
   @Input() columns$: Observable<ColumnConfig[]>;
   @Input() dataSource$: Observable<any>;
-  @Input() showFilters: boolean = true;
-  @Input() modifyEnabled: boolean = false;
-  @Input() deleteEnabled: boolean = false;
-  @Input() displaySearchField: boolean = true;
-  @Input() selectionEnabled: boolean = false;
+  @Input() lists: IDictionary<any[]>;
+  @Input() showFilters = true;
+  @Input() modifyEnabled = false;
+  @Input() deleteEnabled = false;
+  @Input() displaySearchField = true;
+  @Input() selectionEnabled = false;
   @Input() enablingAttribute: string;
   @Input() pageSize = 20;
   @Input() pageSizeOptions = [20, 50, 100];
   @Input() paginator: MatPaginator;
-  @Input() paginate: boolean = true;
-  
+  @Input() paginate = true;
+
   @Output() rowClick = new EventEmitter<any>();
   @Output() addElement = new EventEmitter<any>();
   @Output() modifyElement = new EventEmitter<any>();
   @Output() deleteElement = new EventEmitter<any>();
-  
+
   selection = new SelectionModel<any>(true, []);
   displayedColumns: string[];
   columns: ColumnConfig[] = [];
   dataSource: FilteredDataSource<any>;
   searchModel: string;
-  titleBadge: number = 0;
+  titleBadge = 0;
 
   @ViewChild(MatSort) private sort: MatSort;
   @ViewChild(MatPaginator) private internalPaginator: MatPaginator;
 
-  private _appliedFilters: { [key: string]: any; } = {}; 
-  private _columnsSubscription: Subscription;
-  private _dataSourceSubscription: Subscription;
+  private _appliedFilters: { [key: string]: any; } = {};
+  private _subscriptions = new Subscription();
   public isLoading: boolean;
-  
-  constructor(private readonly columnFilterService: ColumnFilterService, 
-    private readonly _dialog: MatDialog, 
+
+  constructor(private readonly columnFilterService: ColumnFilterService,
+    private readonly _dialog: MatDialog,
     private _elementRef: ElementRef,
     private _questionService: QuestionService
   ) { }
@@ -67,10 +67,9 @@ export class DynamicTableComponent implements OnInit {
   /**
    * Component initialization lifecycle hook
    */
-  ngOnInit() {    
+  ngOnInit() {
     this._validateComponent();
     this._setPaginator();
-    this._getDataSource();
     this._getColumns();
   }
 
@@ -79,7 +78,7 @@ export class DynamicTableComponent implements OnInit {
    */
   private _validateComponent() {
     if ( this._elementRef.nativeElement.id === '' ) {
-      throw Error('Dynamic table needs an id.')
+      throw Error('Dynamic table needs an id.');
     }
   }
 
@@ -95,11 +94,11 @@ export class DynamicTableComponent implements OnInit {
    */
   private _getStoredAppliedFilter() {
     const storedFilters = JSON.parse(localStorage.getItem(this._getLocalStorageItem(ElocalStorageItem.FILTERS)));
-    let filters = {};
+    const filters = {};
     if ( !!storedFilters ) {
       Object.keys(storedFilters).forEach(key => {
         const subFilters = storedFilters[key];
-        subFilters.forEach(subfilter => this._extractFilterFromLocalStorage(subfilter, key, filters));      
+        subFilters.forEach(subfilter => this._extractFilterFromLocalStorage(subfilter, key, filters));
       });
     }
     return filters;
@@ -125,28 +124,42 @@ export class DynamicTableComponent implements OnInit {
    */
   private _getDataSource() {
     this.isLoading = true;
-    this.dataSource$ = this.dataSource$.pipe(
-      map(data => {
-        return new FilteredDataSource(data)
-      })
+    this._subscriptions.add(
+      this._getDataSourceSubscription()
     );
-    this._dataSourceSubscription = this.dataSource$.pipe(
-      tap((datasource) => {
-        this._handleDataSource(datasource)
+  }
+
+  /**
+   * Get the datasource subscription to add.
+   */
+  private _getDataSourceSubscription() {
+    return this.dataSource$.pipe(
+      tap((data) => {
+        this._handleDataSource(data);
       }))
     .subscribe(
       res => this.isLoading = false,
       err => this.isLoading = false,
       () => this.isLoading = false
-  );
+    );
+  }
+
+  /**
+   * Component changes lifecycle hook used to handle
+   * datasource modification as Angular doesn't 
+   * detet changes for non primitive types.
+   * (cf. change detection strategy)
+   */
+  ngOnChanges() {
+    this._getDataSource();
   }
 
   /**
    * Map datasource, then apply stored filters if necesseray then update datasource.
-   * @param datasource The datasource to be mapped and updated.
+   * @param data The data to be mapped and updated.
    */
-  private _handleDataSource(datasource: FilteredDataSource<any>) {
-    this._mapDataSource(datasource);
+  private _handleDataSource(data: any) {
+    this._mapDataSource(data);
     this._appliedFilters = this._getStoredAppliedFilter();
     this.updateDataSource();
     this._handleStoredSearchQuery();
@@ -166,21 +179,22 @@ export class DynamicTableComponent implements OnInit {
   /**
    * Map the received observable from the datasource to the local one
    * and setup sorting and pagination.
-   * @param datasource Datasource from observable.
+   * @param data Any data array from component.
    */
-  private _mapDataSource(datasource: FilteredDataSource<any>) {
-    this.dataSource = datasource;
+  private _mapDataSource(data: any) {
+    this.dataSource = new FilteredDataSource(data);
     this.dataSource.sort = this.sort;
     this.dataSource.paginator = this.paginator;
-    this._updateTitleBadge(datasource);
+    this._updateTitleBadge(this.dataSource);
   }
 
   /**
    * Setup the component paginator
    */
   private _setPaginator() {
-    if (this.paginator === undefined && this.paginate)
+    if (this.paginator === undefined && this.paginate) {
       this.paginator = this.internalPaginator;
+    }
   }
 
   /**
@@ -188,9 +202,11 @@ export class DynamicTableComponent implements OnInit {
    * the columns names and displayed columns.
    */
   private _getColumns() {
-    this._columnsSubscription = this.columns$.pipe(
-      tap((columns) => this._mapColumns(columns)))
-    .subscribe();
+    this._subscriptions.add(
+      this.columns$.pipe(
+        tap((columns) => this._mapColumns(columns)))
+      .subscribe()
+    );
   }
 
   /**
@@ -205,7 +221,7 @@ export class DynamicTableComponent implements OnInit {
     this.columns.forEach((column, index) => column.tag = this._prepareColumnName(column.tag, index));
     const displayedColumns = JSON.parse(localStorage.getItem(this._getLocalStorageItem(ElocalStorageItem.COLUMN)));
     this.displayedColumns = displayedColumns || this.columns
-      .filter(column => column.visible && column.visible == 2)
+      .filter(column => column.visible && column.visible === 2)
       .map((column, index) => column.tag);
   }
 
@@ -217,7 +233,7 @@ export class DynamicTableComponent implements OnInit {
     const columnTag = 'select';
     if (this.selectionEnabled) {
       const selectColumn = this._getTagColumnConfig(columnTag);
-      this.columns.splice(0, 0, selectColumn); 
+      this.columns.splice(0, 0, selectColumn);
     }
   }
 
@@ -261,7 +277,7 @@ export class DynamicTableComponent implements OnInit {
   /**
    * Checks if columns is already filtered and return the
    * filter value if this is the case.
-   * @param column 
+   * @param column
    */
   public isFiltered(column: ColumnConfig) {
     return this._appliedFilters[column.tag];
@@ -273,8 +289,9 @@ export class DynamicTableComponent implements OnInit {
    */
   public getFilterDescription(column: ColumnConfig) {
     const filter = this._appliedFilters[column.tag];
-    if (!filter || !filter.getDescription)
+    if (!filter || !filter.getDescription) {
       return null;
+    }
     return filter.getDescription();
   }
 
@@ -294,8 +311,9 @@ export class DynamicTableComponent implements OnInit {
     if (filter) {
       const columnFilter = new ColumnFilter();
       columnFilter.column = column;
-      if (this._appliedFilters[column.tag])
+      if (this._appliedFilters[column.tag]) {
         columnFilter.filter = Object.create(this._appliedFilters[column.tag]);
+      }
       this._openFilterDialog(columnFilter, filter, column);
     }
   }
@@ -305,7 +323,7 @@ export class DynamicTableComponent implements OnInit {
    * @param columnName The filtered column.
    */
   public getDistinctArrayElements(columnName: string) {
-      return this.dataSource && this.dataSource.data 
+      return this.dataSource && this.dataSource.data
         ? _.uniq(_.flatten(this.dataSource.data.map(d => d[columnName]).filter(ug => ug.length > 0))) : [];
   }
 
@@ -348,7 +366,7 @@ export class DynamicTableComponent implements OnInit {
     const dialogConfig = this._getDialogConfig();
     this._handleColumnsDisplaySelection(dialogConfig);
   }
-  
+
   /**
    * Builds the dialog data object
    */
@@ -385,20 +403,22 @@ export class DynamicTableComponent implements OnInit {
    * @param column The column to filter.
    */
   private _applyFilter(result, column) {
-    if (result)
+    if (result) {
       this._appliedFilters[column.tag] = result;
-    else if (result === '')
+    } else if (result === '') {
       delete this._appliedFilters[column.tag];
-    if (result || result === '')
+    }
+    if (result || result === '') {
       this.updateDataSource();
+    }
   }
 
   /**
    * Group applied filters by type and store them in local storage.
    */
   private _storeFiltersInLocalStorage() {
-    let filters = {};
-    Object.keys(this._appliedFilters).forEach(key => this._groupFiltersByType(key, filters))
+    const filters = {};
+    Object.keys(this._appliedFilters).forEach(key => this._groupFiltersByType(key, filters));
     localStorage.setItem(this._getLocalStorageItem(ElocalStorageItem.FILTERS), JSON.stringify(filters));
   }
 
@@ -523,12 +543,11 @@ export class DynamicTableComponent implements OnInit {
    * @param filterValue The search input value
    */
   public onSearch(filterValue?: string) {
-    if (!!filterValue && filterValue != '') {
+    if (!!filterValue && filterValue !== '') {
         const lowerCaseFilterValue = filterValue.trim().toLowerCase();
         this.dataSource.filter = lowerCaseFilterValue;
         this._updateTitleBadge(this.dataSource);
-    } 
-    else if (filterValue == '') {
+    } else if (filterValue === '') {
       this.updateDataSource();
     }
     this._storeSearchQueryInLocalStorage(filterValue);
@@ -567,10 +586,10 @@ export class DynamicTableComponent implements OnInit {
    */
   private _openAddDialog() {
     const mode = 'create';
-    const questions = this._questionService.getQuestions(this.columns);
-    const dialogRef = this._dialog.open(DynamicFormDialogComponent, 
+    const questions = this._questionService.getQuestions(this.columns, {}, this.lists);
+    const dialogRef = this._dialog.open(DynamicFormDialogComponent,
       this._getDialogFormDialogConfiguration(questions, 'Ajouter', mode));
-    dialogRef.componentInstance.add.subscribe((data) => 
+    dialogRef.componentInstance.add.subscribe((data) =>
       this._handleSubmittedData(data, mode));
   }
 
@@ -579,11 +598,11 @@ export class DynamicTableComponent implements OnInit {
    */
   private _openModifyDialog(data: any) {
     const mode = 'edit';
-    const questions = this._questionService.getQuestions(this.columns, data);
-    const dialogRef = this._dialog.open(DynamicFormDialogComponent, 
+    const questions = this._questionService.getQuestions(this.columns, data, this.lists);
+    const dialogRef = this._dialog.open(DynamicFormDialogComponent,
       this._getDialogFormDialogConfiguration(questions, 'Modifier', mode));
-    dialogRef.componentInstance.edit.subscribe((data) => 
-      this._handleSubmittedData(data, mode));
+    dialogRef.componentInstance.edit.subscribe((modifiedData) =>
+      this._handleSubmittedData(modifiedData, mode));
   }
 
   /**
@@ -599,20 +618,20 @@ export class DynamicTableComponent implements OnInit {
    * @param data The data to delete
    */
   public delete(data: any) {
-    let dialogOptions = this._getDeleteConfirmDialogOptions(data);
-    let dialogRef = this._dialog.open(MatConfirmDialogComponent, dialogOptions)
+    const dialogOptions = this._getDeleteConfirmDialogOptions(data);
+    const dialogRef = this._dialog.open(MatConfirmDialogComponent, dialogOptions);
     dialogRef.afterClosed().pipe(
       filter((result) => !!result))
     .subscribe(() => this.deleteElement.emit(data));
   }
-  
+
   /**
    * Get the confirmation dialog options for the submitted data.
    * @param data The data to get the title for.
    */
   private _getDeleteConfirmDialogOptions(data: any) {
     const dataMessageText = !!data.name ? data.name : data._id;
-    let defaultOptions = {
+    const defaultOptions = {
       width: '390px',
       data: { message: `Voulez-vous vraiment supprimer l'élément ${dataMessageText} ?` }
     };
@@ -625,8 +644,8 @@ export class DynamicTableComponent implements OnInit {
    * @param data Submitted data.
    */
   private _handleSubmittedData(data: any, mode: string) {
-    if (!data.type && data.type !== "submit") {
-      mode == 'create' ? this.addElement.emit(data) : this.modifyElement.emit(data);
+    if (!data.type && data.type !== 'submit') {
+      mode === 'create' ? this.addElement.emit(data) : this.modifyElement.emit(data);
       console.log(`Save element: ${JSON.stringify(data)}`);
     }
   }
@@ -647,7 +666,7 @@ export class DynamicTableComponent implements OnInit {
     this.selection.toggle(row);
   }
 
-  /** 
+  /**
    * Whether the number of selected elements matches the total number of rows.
    */
   isAllSelected() {
@@ -656,23 +675,20 @@ export class DynamicTableComponent implements OnInit {
     return numSelected === numRows;
   }
 
-  /** 
-   * Selects all rows if they are not all selected; 
-   * otherwise clear selection. 
+  /**
+   * Selects all rows if they are not all selected;
+   * otherwise clear selection.
    */
   masterToggle() {
-    this.isAllSelected() ?
-        this.selection.clear() :
-        this.dataSource.filteredData.forEach(row => this.selection.select(row));
+    if (!!this.dataSource) {
+      this.isAllSelected() ? this.selection.clear() : this.dataSource.filteredData.forEach(row => this.selection.select(row));
+    }
   }
 
   /**
    * Component destruction lifecycle hook used to cleanup subscriptions.
    */
   public ngOnDestroy() {
-    if ( !!this._columnsSubscription )
-      this._columnsSubscription.unsubscribe();
-    if ( !!this._dataSourceSubscription )
-      this._dataSourceSubscription.unsubscribe();
+    this._subscriptions.unsubscribe();
   }
 }

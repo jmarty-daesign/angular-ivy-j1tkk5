@@ -1,0 +1,66 @@
+<dae-datatable-header *ngIf="displayHeader" [title]="title+' ('+titleBadge+')'"
+  [displayActionButton]="true"
+  [actionButtonIcon]="'settings'"
+  [displaySearchField]="displaySearchField"
+  [searchModel]="searchModel"
+  [searchInputPlaceholder]="'Rechercher'"
+  (searchTriggered)="onSearch($event)"
+  (actionTriggered)="openColumnsSelectionModal()">
+    <div fxLayout="row">
+      <ng-container *ngIf="this.addElement.observers.length > 0">
+        <button matTooltip="Ajouter un élément" mat-button (click)="add($event)">
+          <mat-icon>add</mat-icon>
+        </button>
+        <mat-divider class="dae-vertical-divider" vertical="true"></mat-divider>
+      </ng-container>
+      <button mat-button (click)="clearFilters($event)">
+        Supprimer tous les filtres
+      </button>
+      <mat-divider class="dae-vertical-divider" vertical="true"></mat-divider>
+      <ng-content></ng-content>
+    </div>
+</dae-datatable-header>
+
+<mat-table [dataSource]="dataSource" matSort matSortDirection="asc" #table>
+  <ng-container *ngFor="let column of columns" matColumnDef="{{ column.tag }}">
+    <mat-header-cell *matHeaderCellDef mat-sort-header="{{ column.tag }}" [ngClass]="{'dae-select-cell' : column.type == 'select'}">
+      {{ column.localname }}
+      <ng-container *ngIf="column.type == 'select'; else sortButton">
+        <mat-checkbox color="primary" [disabled]="isLoading" (change)="$event ? masterToggle() : null" [checked]="selection.hasValue() && isAllSelected()"></mat-checkbox>
+      </ng-container>
+      <ng-template #sortButton>
+        <button class="mat-sort-header-button" 
+          *ngIf="showFilters && canFilter(column)"
+          (click)="filter(column); $event.stopPropagation();"
+          matTooltip="{{ getFilterDescription(column) }}"
+          matTooltipDisabled="{{ !getFilterDescription(column) }}">
+          <mat-icon color="{{ isFiltered(column) ? 'primary' : 'default' }}">filter_list</mat-icon>
+        </button>
+      </ng-template>
+    </mat-header-cell>
+    <mat-cell *matCellDef="let row" [ngClass]="{'dae-select-cell' : column.type == 'select'}">
+      <mdt-table-cell 
+        [selection]="selection" 
+        [row]="row" 
+        [column]="column" 
+        [modifyEnabled]="modifyEnabled" 
+        [deleteEnabled]="deleteEnabled" 
+        (selectElement)="select($event)" 
+        (modifyElement)="modify($event)" 
+        (deleteElement)="delete($event)">
+      </mdt-table-cell>
+    </mat-cell>
+  </ng-container>
+  <mat-header-row *matHeaderRowDef="displayedColumns;"></mat-header-row>
+  <mat-row *matRowDef="let row; columns: displayedColumns;" 
+    [ngClass]="{ 'disabled' : !!enablingAttribute && !row[enablingAttribute] }" 
+    (click)="onRowClick(row)">
+  </mat-row>
+</mat-table>
+<mat-progress-bar *ngIf="isLoading" mode="indeterminate"></mat-progress-bar>
+<mat-paginator [showFirstLastButtons]="true" 
+  [hidden]="!isUsingInternalPaginator()" 
+  [pageSize]="pageSize" 
+  [pageSizeOptions]="pageSizeOptions">
+</mat-paginator>
+

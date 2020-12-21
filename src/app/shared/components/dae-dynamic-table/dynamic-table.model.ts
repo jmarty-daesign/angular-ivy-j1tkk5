@@ -17,6 +17,7 @@ export class ColumnConfig {
 export interface CellComponent {
     column: ColumnConfig;
     row: object;
+    lists?: IDictionary<any[]>;
     modify?: EventEmitter<any>;
     modifyEnabled?: boolean;
     delete?: EventEmitter<any>;
@@ -44,4 +45,13 @@ export enum ElocalStorageItem {
 export enum EFilterOperator {
     OR = 'OU',
     AND = 'ET'
+}
+
+export interface IDictionary<T> {
+    [Key: string]: T;
+}
+
+export interface IMap {
+    key: string;
+    value: any;
 }

@@ -6,14 +6,14 @@ import { DynamicFormDialogComponent } from './dialog/dynamic-form-dialog.compone
 import { QuestionService } from './question/question.service';
 import { DynamicFormQuestionComponent } from './question/dynamic-form-question.component';
 import { MaterialModule } from '../../material.module';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { SharedModule } from '../../shared.module';
 
 
 @NgModule({
   imports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MaterialModule
+    SharedModule,
+    TranslateModule
   ],
   declarations: [
     DynamicFormComponent,

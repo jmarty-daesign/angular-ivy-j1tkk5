@@ -5,24 +5,26 @@ import { DynamicTableComponent } from './shared/components/dae-dynamic-table/dyn
 import { MatRipple, RippleRef, RippleState } from '@angular/material';
 import { DataService } from './data.service';
 import { map } from 'rxjs/operators';
-import { concat } from 'rxjs/observable/concat';
 import { combineLatest } from 'rxjs/observable/combineLatest';
-import { ColumnConfig } from './shared/components/dae-dynamic-table/dynamic-table.model';
+import { ColumnConfig, IDictionary } from './shared/components/dae-dynamic-table/dynamic-table.model';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent implements OnInit {
-
-  columns$: Observable<ColumnConfig[]> = of([]);
-  people$: Observable<any> = of([]);
-  @ViewChild(DynamicTableComponent) dataTable: DynamicTableComponent;
-  @ViewChild(MatRipple) actionMenuButton: MatRipple;
+export class AppComponent implements OnInit {  
 
   private _rippleReference: RippleRef;
   private _dataSelectionSubscription: Subscription;
+
+  public columns$: Observable<ColumnConfig[]> = of([]);
+  public people$: Observable<any> = of([]);
+  public lists$: Observable<IDictionary<any[]>>;
+
+  @ViewChild(DynamicTableComponent) dataTable: DynamicTableComponent;
+  @ViewChild(MatRipple) actionMenuButton: MatRipple;
+  
 
   constructor( private _dataService: DataService ) { }
 
@@ -77,6 +79,7 @@ export class AppComponent implements OnInit {
   private _getData(): void {
     this.people$ = this._dataService.getData();
     this.columns$ = this._dataService.getDataSchemaColumns();
+    this.lists$ = this._dataService.getGendersList();
   }
 
   /**
@@ -137,9 +140,13 @@ export class AppComponent implements OnInit {
    */
   public addDataToTable() {
     const newPeople$ = this._dataService.getDataToAdd();
-    combineLatest(this.people$, newPeople$).pipe(
-      map(([peolpe, newPeople]) => concat(peolpe, newPeople))
-    ).subscribe(() => this.dataTable.refreshData());
+    this.people$ = combineLatest(this.people$, newPeople$).pipe(
+      map(([people, newPeople]) => {
+        debugger
+        return people.concat(newPeople)
+      })
+    );
+    // this.people$.subscribe(() => this.dataTable.refreshData());
 
   }
 

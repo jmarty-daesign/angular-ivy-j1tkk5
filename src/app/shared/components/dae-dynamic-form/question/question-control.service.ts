@@ -14,8 +14,9 @@ export class QuestionControlService {
   toFormGroup(questions: QuestionBase<any>[] ) {
     let group: any = {};
     questions.forEach(question => {
-      group[question.key] = question.required ? new FormControl(question.value || '', Validators.required)
-                                              : new FormControl(question.value || '');
+      const formState = { value: question.value || '', disabled: !question.editable };
+      group[question.key] = question.required ? new FormControl(formState, Validators.required)
+                                              : new FormControl(formState);
     });
     return new FormGroup(group);
   }

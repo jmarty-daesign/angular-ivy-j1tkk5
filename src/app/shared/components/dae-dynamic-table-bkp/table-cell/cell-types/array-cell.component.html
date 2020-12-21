@@ -1,0 +1,15 @@
+<span *ngIf="row[column.tag].length === 1; else multipleGroups">{{ row[column.tag][0][column.ref] }}</span>
+<mat-accordion *ngIf="row[column.tag].length > 1">
+    <mat-expansion-panel hideToggle>
+        <mat-expansion-panel-header style="padding:0px;">
+            <mat-panel-title>
+                ...
+            </mat-panel-title>
+        </mat-expansion-panel-header>
+        <div>
+            <ul class="array-cell-item-list">
+                <li *ngFor="let element of row[column.tag]">{{ element[column.ref] }}</li>
+            </ul>
+        </div>
+    </mat-expansion-panel>
+</mat-accordion>

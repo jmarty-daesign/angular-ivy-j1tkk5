@@ -1,0 +1,20 @@
+<form (ngSubmit)="apply()">
+    <h2 mat-dialog-title>Filtrer par {{ displayName | lowercase }}</h2>
+  
+    <mat-dialog-content>
+    
+      <mat-form-field>
+        <input type="text"
+               matInput
+               placeholder="Contenant"
+               name="value"
+               [(ngModel)]="model.value">
+      </mat-form-field>
+   
+    </mat-dialog-content>
+  
+    <mat-dialog-actions>
+      <button mat-button mat-dialog-close>Supprimer</button>
+      <button mat-button type="submit">Appliquer</button>
+    </mat-dialog-actions>
+  </form>

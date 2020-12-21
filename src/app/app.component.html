@@ -4,6 +4,7 @@
     [title]="'Personnes'"
     [columns$]="columns$"
     [dataSource$]="people$"
+    [lists]="lists$ | async"
     [selectionEnabled]="true"
     [modifyEnabled]="true"
     [deleteEnabled]="true"

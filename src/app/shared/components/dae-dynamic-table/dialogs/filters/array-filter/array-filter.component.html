@@ -1,5 +1,5 @@
 <form (ngSubmit)="apply()">
-    <h2 mat-dialog-title>Filtrer par {{ displayName | lowercase }}</h2>
+    <h2 mat-dialog-title>Filtrer par {{ displayName | translate | lowercase }}</h2>
     <mat-dialog-content>
       <mat-form-field class="array-filter-chip-list">
         <mat-chip-list #chipList>
@@ -12,7 +12,7 @@
             <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
           </mat-chip>
           <input
-            placeholder="Contient le/les éléments {{ displayName | lowercase }} ..."
+            placeholder="Contient le/les éléments {{ displayName | translate | lowercase }} ..."
             #elementInput
             [formControl]="elementControl"
             [matAutocomplete]="auto"

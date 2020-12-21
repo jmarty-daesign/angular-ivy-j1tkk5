@@ -3,7 +3,7 @@
   <mat-dialog-content>
     <mat-list formArrayName="columns">
       <mat-list-item *ngFor="let column of columnsFormControls; let i = index">
-        <mat-checkbox [formControlName]="i" class="example-margin">{{filteredColumns[i].localname}}</mat-checkbox>
+        <mat-checkbox [formControlName]="i" class="example-margin">{{filteredColumns[i].localname | translate}}</mat-checkbox>
       </mat-list-item>
     </mat-list>
   </mat-dialog-content>

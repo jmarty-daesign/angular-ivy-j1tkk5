@@ -24,7 +24,7 @@
 <mat-table [dataSource]="dataSource" matSort matSortDirection="asc" #table>
   <ng-container *ngFor="let column of columns" matColumnDef="{{ column.tag }}">
     <mat-header-cell *matHeaderCellDef mat-sort-header="{{ column.tag }}" [ngClass]="{'dae-select-cell' : column.type == 'select'}">
-      {{ column.localname }}
+      {{ column.localname | translate }}
       <ng-container *ngIf="column.type == 'select'; else sortButton">
         <mat-checkbox color="primary" [disabled]="isLoading" (change)="$event ? masterToggle() : null" [checked]="selection.hasValue() && isAllSelected()"></mat-checkbox>
       </ng-container>
@@ -42,7 +42,8 @@
       <mdt-table-cell 
         [selection]="selection" 
         [row]="row" 
-        [column]="column" 
+        [column]="column"
+        [lists]="lists"
         [modifyEnabled]="modifyEnabled" 
         [deleteEnabled]="deleteEnabled" 
         (selectElement)="select($event)" 
